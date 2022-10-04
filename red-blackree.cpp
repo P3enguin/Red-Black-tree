@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   red-blackree.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ybensell <ybensell@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/09 09:13:01 by ybensell          #+#    #+#             */
-/*   Updated: 2022/10/04 11:04:18 by ybensell         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include <iostream>
 #include <string>
@@ -162,22 +151,6 @@ void	insert(tree **root,tree *node)
 {
 	addToTree(root,node);
 
-	// if (node->data == 6)
-	// {
-	// 	rightRotation(root,node->parent->parent);
-	// 	std::cout << "root now " << (*root)->data << std::endl;
-	// 	if ((*root)->parent)
-	// 		std::cout << "root parent " << (*root)->parent->data << std::endl;
-	// 	if ((*root)->left)
-	// 		std::cout << "Left child parent " << (*root)->left->parent->data << std::endl;
-	// 	if ((*root)->right)
-	// 		std::cout << "right child parent " << (*root)->right->parent->data << std::endl;
-	// 	//  std::cout << "left left child parent " << (*root)->left->left->parent->data << std::endl;
-	// 	//  std::cout << "left right  child parent " << (*root)->left->right->parent->data << std::endl;
-
-	// }
-
-	//sleep(1);
 	tree *u; // uncle 
 	tree *p; // parent
 	tree *n; // node
@@ -227,6 +200,7 @@ void	insert(tree **root,tree *node)
 			{
 				if (n == p->parent->left->right)
 				{
+					// left-right rotation
 					n = p;
 					leftRotation(root,p);
 				}
@@ -242,6 +216,7 @@ void	insert(tree **root,tree *node)
 			{
 				if (n == p->parent->right->left)
 				{
+					// right-left rotation 
 					n = p;
 					rightRotation(root,p);
 				}
@@ -269,11 +244,15 @@ int main()
 	insert(&root,CreateNode(11));
 	insert(&root,CreateNode(2));
 	insert(&root,CreateNode(14));
-	 insert(&root,CreateNode(15));
+	insert(&root,CreateNode(15));
 	insert(&root,CreateNode(8));
 	
 	insert(&root,CreateNode(4));
 	insert(&root,CreateNode(100));
+	insert(&root,CreateNode(10));
+	insert(&root,CreateNode(101));
+	insert(&root,CreateNode(1));
+	insert(&root,CreateNode(102));
 	//rightRotation(&(root->left));
 	//leftRotation(&root);
   	print2D(root);
