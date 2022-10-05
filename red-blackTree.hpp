@@ -38,6 +38,8 @@ class RBtree
 		void	rebalance(node *n);
 		void	leftRotation(node *p);
 		void	rightRotation(node *p);
+		node*	removeNode(node *n);
+
 		void	printTreeUtil(node *root,int space);
 
 		node *root;

@@ -313,17 +313,14 @@ node*	RBtree::successor(int data)
 void	RBtree::rebalance(node *n)
 {
 /* 
-	if the node is the root :
+	if the node is the root of the subtree  :
 	  - if the root doesnt have childs we initialize it to NULL
 	  - 
 
 */
 
-	if (n == this->root)
-	{
-		if (!n->left && !n->right)
-			this->root = NULL;
-	}
+	if (!n->left && !n->right)
+		n = NULL;
 	else
 	{
 
@@ -332,23 +329,63 @@ void	RBtree::rebalance(node *n)
 
 }
 
+node*	RBtree::removeNode(node *n)
+{
+	/* basic  binary tree deletion */ 
+	node *t;
+
+	if (!n->left && !n->right)
+	{
+		delete n;
+		return NULL;
+	}
+	else if (!n->left || !n->right)
+	{
+		if (n->left)
+			t = n->left;
+		else
+			t = n->right;
+		delete n;
+		return t;
+	}
+	else
+	{
+		t = predecessor(n->data);
+		// if (!t)
+		// 	t = successor(n->data);
+		n->data = t->data;
+		t->parent->left= NULL;
+		delete t;
+		return n;
+	}
+}
+
 void	RBtree::Delete(int data)
 {
 	node *tmp;
+	node *p;
 	
 	tmp = this->root;
 
 	/* there are many cases in deletion 
-		first we have to find the element we want to delete */
+		first we have to find the element we want to delete 
+	*/
+	
 	while (tmp)
 	{
 		if (tmp->data == data)
-			rebalance(tmp); // found the element
+		{
+			if (tmp->parent->left == tmp)
+				tmp->parent->left = removeNode(tmp);
+			else
+				tmp->parent->right = removeNode(tmp);
+			return ;
+		//	rebalance(tmp); // found the element
+		}
 		else if (tmp->data > data)
 			tmp = tmp->left;
 		else
 			tmp = tmp->right;
-
 	}
 }
 

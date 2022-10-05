@@ -16,9 +16,11 @@ int main()
     t.insert(8);
     t.insert(13);
     tmp = t.predecessor(11);
-    if (!tmp)
-        std::cout << "Errror " << std::endl;
-    else
-        std::cout << "Successor :" <<  tmp->data << std::endl;
+    // if (!tmp)
+    //     std::cout << "Errror " << std::endl;
+    // else
+    //     std::cout << "Successor :" <<  tmp->data << std::endl;
+
+    t.Delete(14);
     t.printTree();
 }
