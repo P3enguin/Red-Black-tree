@@ -1,133 +1,73 @@
+#include "red-blackTree.hpp"
 
-#include <iostream>
-#include <string>
-#include <unistd.h>
+/* 
+Red-Black tree Properties :
+	- each node is either black or red
+	- Every path from a node to its leafs (NULL) should contain the same number of black nodes 
+	- the root is always black
+	- the leafs are considered black (NULL)
+	- there should be no two consecutive red nodes
+	- New insertions are always red
+*/
 
-#define LEFT    0
-#define RIGHT   1
-#define COUNT   10
-#define BLACK   0
-#define RED     1
-
-typedef struct s_tree{
-
-	struct s_tree *parent;
-	struct s_tree *left;
-	struct s_tree *right;
-	int data;
-	bool color;
-} tree;
-
-
-tree *CreateNode(int data)
+RBtree::RBtree()
 {
-	tree *node;
-
-	node = new tree;
-	node->parent = NULL;
-	node->left = NULL;
-	node->right = NULL;
-	node->data = data;
-	node->color = RED;
-	return node;
+    this->root = new node;
+    this->root = NULL; 
 }
 
-void print2DUtil(tree *root, int space)
+node* RBtree::createNode(int data)
 {
-   
-	if (root == NULL)
-		return;
- 
-  
-	space += COUNT;
- 
-	print2DUtil(root->right, space);
- 
-	std::cout<<std::endl;
-	for (int i = COUNT; i < space; i++)
-		std::cout<<" ";
-	std::cout<<root->data << " " ;
-	std::cout << root->color<<"\n";
-	print2DUtil(root->left, space);
+    node *n;
+
+	n = new node;
+	n->parent = NULL;
+	n->left = NULL;
+	n->right = NULL;
+	n->data = data;
+	n->color = RED;
+	return n;
+
 }
 
-void print2D(tree *root)
+node*	RBtree::search(int data)
 {
-	print2DUtil(root, 0);
-}
+	node *t;
 
-void leftRotation(tree **root,tree *t)
-{
-	tree *tmp;
-
-	tmp = t->right;
-	t->right = tmp->left;
-	if (tmp->left)
-		tmp->left->parent = t;
-	if (t->parent)
-	{   
-		tmp->parent = t->parent;
-		if (t->parent->left == t)
-			t->parent->left = tmp;
-		else
-			t->parent->right = tmp;
-	}
-	else
+	t = this->root;
+	while (t)
 	{
-		tmp->parent = NULL;
-		*root = tmp;
+		if (t->data == data)
+			return t;
+		else if (t->data  < data)
+			t = t->right;
+		else if (t->data > data)
+			t = t->left;
 	}
-	t->parent = tmp;
-	tmp->left = t;
+	return NULL;
 }
 
-void	rightRotation(tree **root,tree *t)
+void RBtree::addToTree(node *n)
 {
-	tree *tmp;
+	node *tmp;
 
-	tmp = t->left;
-	t->left = tmp->right;
-	if (tmp->right)
-		tmp->right->parent = t;
-	if (t->parent)
-	{
-		tmp->parent = t->parent;
-		if (t->parent->left == t)
-			t->parent->left = tmp;
-		else
-			t->parent->right = tmp;
-	}
-	else
-	{
-		tmp->parent = NULL;
-		*root = tmp;
-	}
-	t->parent = tmp;
-	tmp->right = t;
-
-}
-
-void addToTree(tree **root,tree *node)
-{
-	tree *tmp;
-
-	tmp = *root;
+	tmp = root;
 	if (!tmp)
 	{
-		node->color = BLACK;
-		(*root) = node;
+		n->color = BLACK;
+		this->root = n;
 		return ;
 	}
 
 	while (tmp)
 	{
-		if (node->data < tmp->data)
+		if (n->data < tmp->data)
 		{
 		   
 			if (tmp->left == NULL)
 			{
-				node->parent = tmp;
-				tmp->left = node;
+				n->parent = tmp;
+				tmp->left = n;
 				break;
 			}
 			else 
@@ -137,39 +77,84 @@ void addToTree(tree **root,tree *node)
 		{
 			if (tmp->right == NULL)
 			{
-				node->parent = tmp;
-				tmp->right = node;
+				n->parent = tmp;
+				tmp->right = n;
 				break;
 			}
 			else
 				tmp = tmp->right;
 		}
 	}  
+
 }
 
-void	insert(tree **root,tree *node)
+void RBtree::leftRotation(node *p)
 {
-	addToTree(root,node);
+	node *tmp;
 
-	tree *u; // uncle 
-	tree *p; // parent
-	tree *n; // node
+	tmp = p->right;
+	p->right = tmp->left;
+	if (tmp->left)
+		tmp->left->parent = p;
+	if (p->parent)
+	{   
+		tmp->parent = p->parent;
+		if (p->parent->left == p)
+			p->parent->left = tmp;
+		else
+			p->parent->right = tmp;
+	}
+	else
+	{
+		tmp->parent = NULL;
+		this->root = tmp;
+	}
+	p->parent = tmp;
+	tmp->left = p;
+}
 
+void	RBtree::rightRotation(node *p)
+{
+	node *tmp;
+
+	tmp = p->left;
+	p->left = tmp->right;
+	if (tmp->right)
+		tmp->right->parent = p;
+	if (p->parent)
+	{
+		tmp->parent = p->parent;
+		if (p->parent->left == p)
+			p->parent->left = tmp;
+		else
+			p->parent->right = tmp;
+	}
+	else
+	{
+		tmp->parent = NULL;
+		this->root = tmp;
+	}
+	p->parent = tmp;
+	tmp->right = p;
+}
+
+void RBtree::insert(int data)
+{
+	node *n = createNode(data);
+    addToTree(n);
+
+	node *u;  // uncle 
+	node *p;  // parent of the current node
 	bool dir; // direction of the node acording to the grandPa
 
-	n = node;
-	while (n && n != *root)
+	while (n && n != this->root)
 	{
 		p = n->parent;
 
 		// parent color is black , No violation of the rules 
 		if (p->color == BLACK)
 			return;
-		if (p == *root && p->color == RED)
-		{
-			p->color = BLACK;
-			return ;
-		}
+
 		// now parent is red , we check the uncle of the node
 		if (p->parent->left == p)
 		{
@@ -188,27 +173,30 @@ void	insert(tree **root,tree *node)
 			u->color = BLACK;
 			p->color = BLACK;
 			p->parent->color = RED;
+			// We move the node to the grandParent since Its red Now and we re-check
 			n = p->parent;
 		}
 		else
 		{
-			// now uncle is black we have to cases :
-			// - the node is `inner` child of It grandparent 
-			// - the node is `outter` child of It grandparent
-
+			/* 
+				now uncle is black we have two cases :
+			 		- the node is `inner` child of It grandparent 
+					- the node is `outter` child of It grandparent
+			*/
 			if (dir == LEFT)
 			{
 				if (n == p->parent->left->right)
 				{
 					// left-right rotation
+
 					n = p;
-					leftRotation(root,p);
+					leftRotation(p);
 				}
 				else
 				{
 					p->color = BLACK;
 					p->parent->color = RED;
-					rightRotation(root,p->parent);
+					rightRotation(p->parent);
 				}
 	
 			}
@@ -218,43 +206,174 @@ void	insert(tree **root,tree *node)
 				{
 					// right-left rotation 
 					n = p;
-					rightRotation(root,p);
+					rightRotation(p);
 				}
 				else
 				{
 					p->color = BLACK;
 					p->parent->color = RED;
-					leftRotation(root,p->parent);
+					leftRotation(p->parent);
 				}
 			}
 		}
-		// moving to the Grandparent node and re-checking 
+
 	}
-	if ((*root)->color == RED)
-		(*root)->color = BLACK;
-};
+	if ((this->root)->color == RED)
+		(this->root)->color = BLACK;
+}
 
-int main()
+node *	RBtree::predecessor(int data)
 {
-	tree *root;
+	node *t,*pred;
 
-	root = new tree;
-	root = NULL;
+	// /* Predeccessor  of a node is the node with the greatest key 
+	// 	smaller than the key of the current n in Its left subtree
 
-	insert(&root,CreateNode(11));
-	insert(&root,CreateNode(2));
-	insert(&root,CreateNode(14));
-	insert(&root,CreateNode(15));
-	insert(&root,CreateNode(8));
+	// 	- if the node doesnt have a left subtree , the successor is
+	// 		one of Its ancestor 
+	t = this->root;
+	pred = NULL;
+	while (t)
+	{
+		if (t->data < data)
+		{
+			pred = t;
+			t = t->right;
+		}
+		else if (t->data > data)
+			t = t->left;
+		else if (t->data == data)
+		{
+			if (t->left)
+			{
+				t = t->left;
+				while (t)
+				{
+					if (t->right)
+						t = t->right;
+					else if (t->left)
+						t = t->left;
+					else
+						return t;
+				}
+			}
+			else
+				break;
+		}
+	}
 	
-	insert(&root,CreateNode(4));
-	insert(&root,CreateNode(100));
-	insert(&root,CreateNode(10));
-	insert(&root,CreateNode(101));
-	insert(&root,CreateNode(1));
-	insert(&root,CreateNode(102));
-	//rightRotation(&(root->left));
-	//leftRotation(&root);
-  	print2D(root);
+	return pred;
+}
 
+node*	RBtree::successor(int data)
+{
+	node *t,*succ;
+
+	/* Successor of a node is the node with the smallest key 
+		greater than the key of the current n in Its right subtree
+
+		- if the node doesnt have a right subtree , the successor is
+			one of Its ancestor 
+
+	*/
+	t = this->root;
+	succ = NULL;
+	while (t)
+	{
+		if (t->data < data)
+			t = t->right;
+		else if (t->data > data)
+		{
+			succ = t;
+			t = t->left;
+		}
+		else if (t->data == data)
+		{
+			if (t->right)
+			{
+				t = t->right;
+				while (t)
+				{
+					if (t->left)
+						t = t->left;
+					else if (t->right)
+						t = t->right;
+					else
+						return t;
+				}
+			}
+			else
+				break;
+		}
+	}
+	return succ;
+}
+
+
+void	RBtree::rebalance(node *n)
+{
+/* 
+	if the node is the root :
+	  - if the root doesnt have childs we initialize it to NULL
+	  - 
+
+*/
+
+	if (n == this->root)
+	{
+		if (!n->left && !n->right)
+			this->root = NULL;
+	}
+	else
+	{
+
+	}
+	
+
+}
+
+void	RBtree::Delete(int data)
+{
+	node *tmp;
+	
+	tmp = this->root;
+
+	/* there are many cases in deletion 
+		first we have to find the element we want to delete */
+	while (tmp)
+	{
+		if (tmp->data == data)
+			rebalance(tmp); // found the element
+		else if (tmp->data > data)
+			tmp = tmp->left;
+		else
+			tmp = tmp->right;
+
+	}
+}
+
+
+
+void RBtree::printTreeUtil(node *root, int space)
+{
+   
+	if (root == NULL)
+		return;
+  
+	space += COUNT;
+ 
+	printTreeUtil(root->right, space);
+ 
+	std::cout<<std::endl;
+	for (int i = COUNT; i < space; i++)
+		std::cout<<" ";
+	std::cout<<root->data << " " ;
+	std::cout << root->color<<"\n";
+	printTreeUtil(root->left, space);
+}
+
+
+void RBtree::printTree()
+{
+	printTreeUtil(this->root, 0);
 }

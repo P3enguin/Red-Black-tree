@@ -19,19 +19,27 @@ struct s_tree{
 	bool color;
 }; 
 
-
 class RBtree 
 {
 	public :
 		RBtree();
+		void    insert(int data);
+		void	Delete(int data);
+		// int for the moment 
+		void	printTree();
+		node*	search(int data);
+		node*	predecessor(int data);
+		node*	successor(int data);
+
+	private :
 		node*   createNode(int data);
+
 		void    addToTree(node *n);
-		void    insert(int data); // int for the moment 
+		void	rebalance(node *n);
 		void	leftRotation(node *p);
 		void	rightRotation(node *p);
-		void	printTree();
 		void	printTreeUtil(node *root,int space);
-	private :
+
 		node *root;
 
 };
