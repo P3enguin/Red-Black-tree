@@ -348,9 +348,11 @@ void	RBtree::rebalance(node *n,node *u)
 				dir = RIGHT;
 			}
 			if (p->color == RED && 
-				(s->color == BLACK && d && c && 
-					(d->color == c->color == BLACK)))
+				(s->color == BLACK && ( (d && c && 
+					d->color == c->color == BLACK)
+					|| (!d && !c))))
 			{
+				std::cout << "should be here " << std::endl;
 				p->color = BLACK;
 				s->color = RED;
 				break ;

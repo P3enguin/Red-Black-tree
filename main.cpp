@@ -23,6 +23,7 @@ int main()
     // else
     //     std::cout << "Successor :" <<  tmp->data << std::endl;
     t.Delete(8);
+    t.Delete(6);
     t.printTree();
     //t.freeTree(t.getRoot());
  
