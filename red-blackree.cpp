@@ -12,7 +12,6 @@ Red-Black tree Properties :
 
 RBtree::RBtree()
 {
-    this->root = new node;
     this->root = NULL; 
 }
 
@@ -310,86 +309,179 @@ node*	RBtree::successor(int data)
 }
 
 
-void	RBtree::rebalance(node *n)
+void	RBtree::rebalance(node *n,node *u)
 {
-/* 
-	if the node is the root of the subtree  :
-	  - if the root doesnt have childs we initialize it to NULL
-	  - 
-
-*/
-
-	if (!n->left && !n->right)
-		n = NULL;
-	else
+	/* 
+		n : the node to be deleted 
+		u : the node that will replace the deleted node
+		s : sibling of n
+	*/
+	node *p = n->parent;
+	if (u)
 	{
-
+		u->color = BLACK;
+		if (p->left == n)
+			p->left = u;
+		else
+			p->right = u;
+		u->parent = p;
 	}
-	
+	else if (!u && n->color == BLACK)
+	{
+		bool dir;
+		node *s,*d,*c;
+		while (p != NULL)
+		{
 
+			if (p->left == n)
+			{
+				s = p->right;
+				d = s->right;
+				c = s->left;
+				dir = LEFT;
+			}
+			else
+			{
+				s = p->left;
+				d = s->left;
+				c = s->right;
+				dir = RIGHT;
+			}
+			if (p->color == RED && 
+				(s->color == BLACK && d && c && 
+					(d->color == c->color == BLACK)))
+			{
+				p->color = BLACK;
+				s->color = RED;
+				break ;
+			}
+			else if (s->color == RED)
+			{	
+				
+				p->color = RED;
+				s->color = BLACK;
+				if (dir == RIGHT)
+					leftRotation(p);
+				else
+					rightRotation(p);
+				continue;
+			}
+			else if (s->color == BLACK)
+			{
+				if (!d || (d && d->color == BLACK &&
+					c && c->color == RED))
+				{
+					// might be an error here 	
+					std::cout <<  "hh" << std::endl;
+					c->color = BLACK;
+					s->color = RED;
+					if (dir == RIGHT)
+						leftRotation(s);
+					else
+						rightRotation(s);
+					continue;
+				}
+				else if (d && d->color == RED)
+				{
+					s->color = p->color;
+					d->color =  p->color = BLACK;
+					if (dir == RIGHT)
+						rightRotation(p);
+					else
+						leftRotation(p);
+					break ;
+				}
+			}
+		}
+	}
+	if (p->left == n)
+		p->left = NULL;
+	else if (p->right == n)
+		p->right = NULL;
+	delete n;
+	n = NULL;
+	return ;
 }
 
-node*	RBtree::removeNode(node *n)
+/* basic  binary tree deletion */ 
+
+void	RBtree::removeNode(node *n)
 {
-	/* basic  binary tree deletion */ 
 	node *t;
 
 	if (!n->left && !n->right)
-	{
-		delete n;
-		return NULL;
-	}
+		rebalance(n,NULL);
 	else if (!n->left || !n->right)
 	{
 		if (n->left)
 			t = n->left;
 		else
 			t = n->right;
-		delete n;
-		return t;
+		rebalance(n,t);
 	}
-	else
+	// if n is an internal node 
+	else if (n->left && n->right)
 	{
 		t = predecessor(n->data);
-		// if (!t)
-		// 	t = successor(n->data);
+		if (!t)
+		 	t = successor(n->data);
 		n->data = t->data;
-		t->parent->left= NULL;
-		delete t;
-		return n;
+		rebalance(t,NULL);
 	}
+
 }
 
 void	RBtree::Delete(int data)
 {
 	node *tmp;
 	node *p;
+	bool dir;
 	
-	tmp = this->root;
+	p = tmp = this->root;
 
 	/* there are many cases in deletion 
 		first we have to find the element we want to delete 
+		then we perform a binary search deletion .
 	*/
-	
+
 	while (tmp)
 	{
 		if (tmp->data == data)
 		{
-			if (tmp->parent->left == tmp)
-				tmp->parent->left = removeNode(tmp);
-			else
-				tmp->parent->right = removeNode(tmp);
-			return ;
-		//	rebalance(tmp); // found the element
+			removeNode(tmp);
+			// if (p->left == tmp)
+			// 	p->left = removeNode(tmp);
+			// else if (p->right == tmp)
+			// 	p->right = removeNode(tmp);
+			// else		
+			// 	this->root = removeNode(tmp);
+			//deleteNode(p,tmp);
+			//rebalance(tmp); // found the element
+			break;
 		}
 		else if (tmp->data > data)
+		{
+			p = tmp;
 			tmp = tmp->left;
+		}
 		else
+		{
+			p = tmp;
 			tmp = tmp->right;
+		}
 	}
 }
 
-
+void	RBtree::freeTree(node *root)
+{
+	std::cout << "hh " << std::endl;
+	if (root->left)
+		freeTree(root->left);
+	if (root->right)
+		freeTree(root->right);
+	delete root;
+	return ;
+}
 
 void RBtree::printTreeUtil(node *root, int space)
 {
@@ -409,8 +501,12 @@ void RBtree::printTreeUtil(node *root, int space)
 	printTreeUtil(root->left, space);
 }
 
-
 void RBtree::printTree()
 {
 	printTreeUtil(this->root, 0);
+}
+
+node*	RBtree::getRoot()
+{
+	return this->root;
 }

@@ -30,15 +30,17 @@ class RBtree
 		node*	search(int data);
 		node*	predecessor(int data);
 		node*	successor(int data);
+		node*	getRoot();
+		void	freeTree(node *root);
 
 	private :
 		node*   createNode(int data);
 
 		void    addToTree(node *n);
-		void	rebalance(node *n);
+		void	rebalance(node *n, node *u);
 		void	leftRotation(node *p);
 		void	rightRotation(node *p);
-		node*	removeNode(node *n);
+		void	removeNode(node *n);
 
 		void	printTreeUtil(node *root,int space);
 

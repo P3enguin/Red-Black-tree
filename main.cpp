@@ -15,12 +15,15 @@ int main()
     t.insert(5);
     t.insert(8);
     t.insert(13);
-    tmp = t.predecessor(11);
+    t.insert(99);
+    t.insert(6);
+    // tmp = t.predecessor(11);
     // if (!tmp)
     //     std::cout << "Errror " << std::endl;
     // else
     //     std::cout << "Successor :" <<  tmp->data << std::endl;
-
-    t.Delete(14);
+    t.Delete(8);
     t.printTree();
+    //t.freeTree(t.getRoot());
+ 
 }
