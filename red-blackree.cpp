@@ -314,9 +314,15 @@ void	RBtree::rebalance(node *n,node *u)
 	/* 
 		n : the node to be deleted 
 		u : the node that will replace the deleted node
-		s : sibling of n
+		s : sibling of the node
+		c : close nephew 
+		d : distant nephew
 	*/
+
+	node *tmp = n; /* saving the deleted node pointer to free at the end */
 	node *p = n->parent;
+
+	/* Node being replaced by Its one child */
 	if (u)
 	{
 		u->color = BLACK;
@@ -326,13 +332,14 @@ void	RBtree::rebalance(node *n,node *u)
 			p->right = u;
 		u->parent = p;
 	}
+	/* node is leaf and black */
 	else if (!u && n->color == BLACK)
 	{
 		bool dir;
 		node *s,*d,*c;
+	
 		while (p != NULL)
 		{
-			
 			if (p->left == n)
 			{
 				s = p->right;
@@ -347,15 +354,18 @@ void	RBtree::rebalance(node *n,node *u)
 				c = s->right;
 				dir = RIGHT;
 			}
+			/* case 4 :parent is red and s+c+d black */
 			if (p->color == RED && 
 				(s->color == BLACK && ( (d && c && 
 					d->color == c->color == BLACK)
 					|| (!d && !c))))
 			{
+				
 				p->color = BLACK;
 				s->color = RED;
 				break ;
 			}
+			/* case 2 : p+s+c+d all black */
 			else if (p->color == BLACK && 
 				(s->color == BLACK && ((d && c && 
 					d->color  == BLACK && c->color == BLACK)
@@ -366,12 +376,13 @@ void	RBtree::rebalance(node *n,node *u)
 				p = p->parent;
 				continue;
 			}
+			/* case 3 : sibling is red */
 			else if (s->color == RED)
 			{	
 				
 				p->color = RED;
 				s->color = BLACK;
-				if (dir == RIGHT)
+				if (dir == LEFT)
 					leftRotation(p);
 				else
 					rightRotation(p);
@@ -379,8 +390,9 @@ void	RBtree::rebalance(node *n,node *u)
 			}
 			else if (s->color == BLACK)
 			{
-				if (!d || (d && d->color == BLACK &&
-					c && c->color == RED))
+			/* case 5 : s is black & d is black */
+				if (!d || (d && d->color == BLACK /*&&
+					c && c->color == RED*/))
 				{
 					// might be an error here 	
 					c->color = BLACK;
@@ -391,6 +403,7 @@ void	RBtree::rebalance(node *n,node *u)
 						rightRotation(s);
 					continue;
 				}
+			/* case 6 : s is black & d is RED */
 				else if (d && d->color == RED)
 				{
 					s->color = p->color;
@@ -404,35 +417,49 @@ void	RBtree::rebalance(node *n,node *u)
 			}
 		}
 	}
-	if (p)
+	/* 	deleting the node and setting */
+	/*	it parent to NULL + red leaf case */
+	if (tmp->parent)
 	{
-		if (p->left == n)
-			p->left = NULL;
-		else if (p->right == n)
-			p->right = NULL;
-		delete n;
-		n = NULL;
+		if (tmp->parent->left == tmp)
+			tmp->parent->left = NULL;
+		else if (tmp->parent->right == tmp)
+			tmp->parent->right = NULL;
+		delete tmp;
+		tmp = NULL;
 	}
 	return ;
 }
 
 /* basic  binary tree deletion */ 
-
 void	RBtree::removeNode(node *n)
 {
 	node *t;
+	
+	/*	node is  the root */
+	if (n == this->root)
+	{
+		this->root = NULL;
+		delete n;
+		n = NULL;
+		return ;
+	}
 
+	/*	node is a leaf	*/
 	if (!n->left && !n->right)
 		rebalance(n,NULL);
+
+	/*	node has only one child */
 	else if (!n->left || !n->right)
-	{
+	{	
 		if (n->left)
 			t = n->left;
 		else
 			t = n->right;
 		rebalance(n,t);
 	}
-	// if n is an internal node 
+
+	/* node has two childs */
 	else if (n->left && n->right)
 	{
 		t = predecessor(n->data);
@@ -441,57 +468,43 @@ void	RBtree::removeNode(node *n)
 		n->data = t->data;
 		rebalance(t,NULL);
 	}
-
 }
 
 void	RBtree::Delete(int data)
 {
 	node *tmp;
-	node *p;
 	bool dir;
 	
-	p = tmp = this->root;
 
 	/* there are many cases in deletion 
 		first we have to find the element we want to delete 
 		then we perform a binary search deletion .
 	*/
-
+	tmp = this->root;
 	while (tmp)
 	{
 		if (tmp->data == data)
 		{
 			removeNode(tmp);
-			// if (p->left == tmp)
-			// 	p->left = removeNode(tmp);
-			// else if (p->right == tmp)
-			// 	p->right = removeNode(tmp);
-			// else		
-			// 	this->root = removeNode(tmp);
-			//deleteNode(p,tmp);
-			//rebalance(tmp); // found the element
-			break;
+			return;
 		}
 		else if (tmp->data > data)
-		{
-			p = tmp;
 			tmp = tmp->left;
-		}
 		else
-		{
-			p = tmp;
 			tmp = tmp->right;
-		}
 	}
 }
 
 void	RBtree::freeTree(node *root)
 {
-	if (root->left)
-		freeTree(root->left);
-	if (root->right)
-		freeTree(root->right);
-	delete root;
+	if (root)
+	{
+		if (root->left)
+			freeTree(root->left);
+		if (root->right)
+			freeTree(root->right);
+		delete root;
+	}
 	return ;
 }
 

@@ -26,6 +26,14 @@ int main()
     t.Delete(6);
     t.Delete(11);
     t.Delete(1);
+    t.Delete(7);
+    t.Delete(5);
+    t.Delete(14);
+    t.Delete(13);
+   t.Delete(15);
+   t.Delete(99);
+   t.Delete(2);
+    t.insert(10);
     t.printTree();
     t.freeTree(t.getRoot());
 }
