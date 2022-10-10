@@ -332,7 +332,7 @@ void	RBtree::rebalance(node *n,node *u)
 		node *s,*d,*c;
 		while (p != NULL)
 		{
-
+			
 			if (p->left == n)
 			{
 				s = p->right;
@@ -352,10 +352,19 @@ void	RBtree::rebalance(node *n,node *u)
 					d->color == c->color == BLACK)
 					|| (!d && !c))))
 			{
-				std::cout << "should be here " << std::endl;
 				p->color = BLACK;
 				s->color = RED;
 				break ;
+			}
+			else if (p->color == BLACK && 
+				(s->color == BLACK && ((d && c && 
+					d->color  == BLACK && c->color == BLACK)
+					|| (!d && !c))))
+			{
+				s->color = RED;
+				n = p;
+				p = p->parent;
+				continue;
 			}
 			else if (s->color == RED)
 			{	
@@ -374,7 +383,6 @@ void	RBtree::rebalance(node *n,node *u)
 					c && c->color == RED))
 				{
 					// might be an error here 	
-					std::cout <<  "hh" << std::endl;
 					c->color = BLACK;
 					s->color = RED;
 					if (dir == RIGHT)
@@ -396,12 +404,15 @@ void	RBtree::rebalance(node *n,node *u)
 			}
 		}
 	}
-	if (p->left == n)
-		p->left = NULL;
-	else if (p->right == n)
-		p->right = NULL;
-	delete n;
-	n = NULL;
+	if (p)
+	{
+		if (p->left == n)
+			p->left = NULL;
+		else if (p->right == n)
+			p->right = NULL;
+		delete n;
+		n = NULL;
+	}
 	return ;
 }
 
@@ -476,7 +487,6 @@ void	RBtree::Delete(int data)
 
 void	RBtree::freeTree(node *root)
 {
-	std::cout << "hh " << std::endl;
 	if (root->left)
 		freeTree(root->left);
 	if (root->right)
