@@ -326,15 +326,19 @@ void	RBtree::rebalance(node *n,node *u)
 	if (u)
 	{
 		u->color = BLACK;
-		if (p->left == n)
-			p->left = u;
-		else
-			p->right = u;
+        if (p)
+        {
+            if (p->left == n)
+                p->left = u;
+            else
+                p->right = u;
+        }
 		u->parent = p;
 	}
 	/* node is leaf and black */
 	else if (!u && n->color == BLACK)
 	{
+        
 		bool dir;
 		node *s,*d,*c;
 	
@@ -428,6 +432,7 @@ void	RBtree::rebalance(node *n,node *u)
 		delete tmp;
 		tmp = NULL;
 	}
+    
 	return ;
 }
 
@@ -436,18 +441,18 @@ void	RBtree::removeNode(node *n)
 {
 	node *t;
 	
-	/*	node is  the root */
-	if (n == this->root)
-	{
-		this->root = NULL;
-		delete n;
-		n = NULL;
-		return ;
-	}
-
 	/*	node is a leaf	*/
 	if (!n->left && !n->right)
-		rebalance(n,NULL);
+    {
+        if (n == this->root)
+        {
+            delete n;
+            n = NULL;
+            this->root = NULL;
+            return ;
+        }
+	    rebalance(n,NULL);
+    }
 
 	/*	node has only one child */
 	else if (!n->left || !n->right)
@@ -456,6 +461,14 @@ void	RBtree::removeNode(node *n)
 			t = n->left;
 		else
 			t = n->right;
+        if (n == this->root)
+        {       
+            t->parent = NULL;
+            delete n;
+            n = NULL;
+            this->root = t;
+            return ;
+        }
 		rebalance(n,t);
 	}
 
