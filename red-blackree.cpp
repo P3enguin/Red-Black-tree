@@ -361,7 +361,7 @@ void	RBtree::rebalance(node *n,node *u)
 			/* case 4 :parent is red and s+c+d black */
 			if (p->color == RED && 
 				(s->color == BLACK && ( (d && c && 
-					d->color == c->color == BLACK)
+					d->color == BLACK && c->color == BLACK)
 					|| (!d && !c))))
 			{
 				
